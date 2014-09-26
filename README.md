@@ -1,7 +1,7 @@
 sqlite-shelve
 =============
 
-* Implements a thread-safe shelve-like store in SQLite
+* Implements a shelve-like store in SQLite
 * Applications incorporating this module can utilize the interfaces of SQLiteShelve class just like they do the Shelve class
 * In most ordinary use cases, applications that use the builtin shelve module can switch to SQLiteShelve with the followng:
 
@@ -26,3 +26,4 @@ d.close() #commits changes to Sqlite3 shelve store
 
 * data, like in dbm, or BerkeleyDB-based storage libraries, is pickled with cpickle, but pickles with HIGHEST_PROTOCOL. 
 
+contains a script called shelve-tool, which is both a useful utility and provides an example for how sqlite-shelve can be used like the shelve module
