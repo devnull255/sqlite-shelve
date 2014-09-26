@@ -5,6 +5,7 @@ class Shelf(object):
    """ Hackified Shelf class with sqlite3 """
    def __init__(self,dbpath):
       """ Opens or creates an existing sqlite3_shelf"""
+
       self.db =  sqlite3.connect(dbpath)
       #create shelf table if it doesn't already exist
       cursor = self.db.cursor()
@@ -20,7 +21,6 @@ class Shelf(object):
       curr = self.db.cursor()
       curr.execute("insert or replace into shelf (key_str,value_str) values (:key,:value)",{ 'key' : key, 'value' : sqlite3.Binary(pdata)})
       curr.close()
-      self.db.commit()
 
    def get(self,key,default_value):
       """ Returns an entry for key """    
@@ -61,7 +61,6 @@ class Shelf(object):
       curr = self.db.cursor()
       curr.execute("delete from shelf where key_str = '%s'" % key)
       curr.close()
-      self.db.commit()
 
    def close(self):
       """
@@ -74,4 +73,10 @@ def open(dbpath):
     """ Creates and returns a Shelf object """
     return Shelf(dbpath)
 
+
+def close(db):
+    """
+      commits changes to the database
+    """
+    db.close()
 
