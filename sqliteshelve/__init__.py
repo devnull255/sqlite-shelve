@@ -52,6 +52,17 @@ class Shelf(object):
       curr.close()
       return keylist
 
+   def __contains__(self,key):
+       """
+          implements in operator
+          if <key> in db
+       """
+       return key in self.keys()
+
+   def __iter__(self):
+       return iter(self.keys())
+
+       
    def __len__(self):
       """ Returns number of entries in shelf """
       return len(self.keys())
