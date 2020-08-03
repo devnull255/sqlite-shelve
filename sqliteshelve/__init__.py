@@ -1,5 +1,5 @@
 #sqliteshelve module
-import  cPickle, sqlite3, os
+import  pickle, sqlite3, os
 
 class Shelf(object):
    """ Hackified Shelf class with sqlite3 """
@@ -17,7 +17,7 @@ class Shelf(object):
 
    def __setitem__(self,key,value):
       """ Sets an entry for key to value using pickling """
-      pdata = cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)
+      pdata = pickle.dumps(value,pickle.HIGHEST_PROTOCOL)
       curr = self.db.cursor()
       curr.execute("insert or replace into shelf (key_str,value_str) values (:key,:value)",{ 'key' : key, 'value' : sqlite3.Binary(pdata)})
       curr.close()
@@ -29,7 +29,7 @@ class Shelf(object):
       result = curr.fetchone()
       curr.close()
       if result:
-         return cPickle.loads(str(result[0]))
+         return pickle.loads(str(result[0]))
       else:
          return default_value
   
@@ -40,9 +40,9 @@ class Shelf(object):
       result = curr.fetchone()
       curr.close()
       if result:
-         return cPickle.loads(str(result[0]))
+         return pickle.loads(str(result[0]))
       else:
-         raise KeyError, "Key: %s does not exist." % key
+         raise(KeyError, "Key: %s does not exist." % key)
 
    def keys(self):
       """ Returns list of keys """

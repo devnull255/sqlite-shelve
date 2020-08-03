@@ -16,7 +16,7 @@ import sqliteshelve as shelve
 import argparse
 import os
 import sys
-import ConfigParser
+import configparser
 import datetime
 import getpass
 
@@ -28,11 +28,11 @@ def parse_keywords(keywords):
     d = {}
     try:
        d = dict([x.split('=',1) for x in keywords])
-    except ValueError,e:
+    except ValueError as e:
        for kw in keywords:
           if '=' not in kw:
-             print "Keyword: %s is invalid" % kw
-       print "All keywords should be formatted as key=value."
+             print("Keyword: %s is invalid" % kw)
+       print("All keywords should be formatted as key=value.")
        
 
     return d
@@ -58,7 +58,7 @@ def add(args):
 
     
     if args.key in db:
-       print "Record with key: %s already exists." % args.key
+       print("Record with key: %s already exists." % args.key)
        return
 
     created_ts = str(datetime.datetime.now())
@@ -68,7 +68,7 @@ def add(args):
  
     db[args.key] = rec
     db.close() #commits changes    
-    print 'Entry %s added.' % args.key
+    print('Entry %s added.' % args.key)
 
 def add_type(args):
     """
@@ -80,7 +80,8 @@ def add_type(args):
     db = shelve.open(args.file)
     user_type_name = 'UDT_' + args.type_name
     if user_type_name in db:
-       print "User type %s already exists." % user_type_name
+       print("User type %s already exists." % user_type_name)
+
        return
 
     rec = {}
@@ -94,7 +95,7 @@ def add_type(args):
     rec['create_user'] = create_user
     db[user_type_name] = rec
     db.close()
-    print "Record user-type: %s added." % args.type_name
+    print("Record user-type: %s added." % args.type_name)
 
 
 def list_records(args):
@@ -113,9 +114,9 @@ def list_records(args):
        header2 = '-' * 15
        footer = '-' * 15
 
-    print header
-    print header2
-    print
+    print(header)
+    print(header2)
+    print()
     for key in db:
         if args.type:
            if args.type != db[key].get('type',''):
@@ -125,12 +126,12 @@ def list_records(args):
            continue
         
         if args.long:
-           print format_str % (key,db[key])
+           print(format_str % (key,db[key]))
         else:
-           print key
+           print(key)
         count += 1
-    print footer
-    print "%d records" % count
+    print(footer)
+    print("%d records" % count)
 
 def show(args):
     """
@@ -138,11 +139,11 @@ def show(args):
     """
     db = shelve.open(args.file)
     if args.key in db:
-       print "Displaying contents of record: %s" % args.key
+       print("Displaying contents of record: %s" % args.key)
        rec = db[args.key]
-       print rec        
+       print(rec)      
     else:
-       print "No record for key: %s found." % args.key
+       print("No record for key: %s found." % args.key)
 
 
 def update(args):
@@ -160,9 +161,9 @@ def update(args):
        rec_to_update['last_update_user'] = last_update_user
        db[args.key] = rec_to_update
        db.close() #commit changes
-       print "Updated record: %s " % args.key
+       print("Updated record: %s " % args.key)
     else:
-       print "Key: %s does not exist." % args.key
+       print("Key: %s does not exist." % args.key)
 
 def delete(args):
     """
@@ -172,9 +173,9 @@ def delete(args):
     if args.key in db:
        del db[args.key]
        db.close() #commit or delete will not happen
-       print "Record for %s deleted." % args.key
+       print("Record for %s deleted." % args.key)
     else:
-       print "Cannot delete. Key: %s does not exist" % args.key
+       print("Cannot delete. Key: %s does not exist" % args.key)
        
     
 parser = argparse.ArgumentParser('shelve-tool')
@@ -220,4 +221,9 @@ parser_show.set_defaults(func=show)
 
 
 args = parser.parse_args()
+
+if len(sys.argv) < 2:
+     parser.print_help()
+     sys.exit(0)
+
 args.func(args)
