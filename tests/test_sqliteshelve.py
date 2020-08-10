@@ -29,6 +29,49 @@ class SQLiteShelfTestCase(unittest.TestCase):
         result_str = pickle.loads(result[0])
         self.assertEqual(result_str, "Minnesota")
             
+    def test__getitem__(self):
+        """Ensures a Shelf item can be retrieved by key"""
+        key = "MI"
+        value = "Michigan"
+        pdata = pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
+        curr = self.db.db.cursor()
+        curr.execute("insert or replace into shelf (key_str, value_str) values (:key, :value)", {'key': key, 'value': sqlite3.Binary(pdata)})
+        curr.close()
+        state = self.db[key]
+        self.assertEqual(state, "Michigan")
+
+    def test_keys(self):
+        """Ensures the keys method returns a list of keys in a shelf"""
+        self.db["AL"] = "Alabama"
+        self.db["CA"] = "California"
+        self.db["MI"] = "Michigan"
+        self.db["MN"] = "Minnesota"
+        expected_keys = {"AL", "CA", "MI", "MN"}
+        self.assertEqual(set(self.db.keys()), expected_keys)
+        self.assertEqual(len(self.db.keys()), 4)
+        
+    def test___contains__(self):
+        """Ensures in operator works on Shelf object"""
+        self.db["AL"] = "Alabama"
+        self.db["CA"] = "California"
+        self.db["MI"] = "Michigan"
+        self.db["MN"] = "Minnesota"
+        self.assertIn("AL", self.db)
+        self.assertIn("MN", self.db)
+        self.assertIn("MI", self.db)
+        self.assertIn("CA", self.db)
+        self.assertNotIn("TX", self.db)
+
+    def test__delitem__(self):
+        """Ensures del works on a Shelf"""
+        self.db["AL"] = "Alabama"
+        self.db["CA"] = "California"
+        self.db["MI"] = "Michigan"
+        self.db["MN"] = "Minnesota"
+        del self.db["AL"]
+        self.assertEqual(len(self.db), 3)
+        self.assertNotIn("AL", self.db)
+    
     def tearDown(self):
         if os.path.exists('test_shelf'):
             os.remove('test_shelf')         
