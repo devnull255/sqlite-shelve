@@ -3,3 +3,4 @@
 *.tgz
 *.tar
 *.zip
+**/__pycache__
