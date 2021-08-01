@@ -3,7 +3,7 @@ import os
 import pickle
 import sqlite3
 import sys
-sys.path.append('../')
+sys.path.append('../src')
 
 import sqliteshelve as shelve
 
