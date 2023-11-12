@@ -1,8 +1,11 @@
 # sqliteshelve module
-import pickle, sqlite3, os
+import os
+import pickle
+import shelve
+import sqlite3
 
 
-class Shelf(object):
+class Shelf(shelve.Shelf):
     """Hackified Shelf class with sqlite3"""
 
     def __init__(self, dbpath):

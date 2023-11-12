@@ -72,6 +72,21 @@ class SQLiteShelfTestCase(unittest.TestCase):
         self.assertEqual(len(self.db), 3)
         self.assertNotIn("AL", self.db)
     
+    def test_contextmanager(self):
+        """
+        Ensures contextmanager works for sqliteshelve.Shelf
+        """
+        with shelve.open("ctx_shelve") as ctx_shelve:
+            ctx_shelve["MN"] = "Minnesota"
+            ctx_shelve["OR"] = "Oregon"
+            ctx_shelve["CA"] = "California"
+
+        with shelve.open("ctx_shelve") as ctx:
+            keys = ctx.keys()
+            self.assertIn("MN", keys)
+            self.assertIn("OR", keys)
+            self.assertIn("CA", keys)
+
     def tearDown(self):
         if os.path.exists('test_shelf'):
             os.remove('test_shelf')         
