@@ -12,7 +12,8 @@
 #        show _key_ - shows the contents of record indexed by _key_
 # namespace(file='mydb', func=<function add at 0x1013f4050>, key='obj1', keywords=['database=blah', 'count=4'], type='user-object')
 ##################################################################################################
-import sqliteshelve as shelve
+from . import open as shelve_open
+from . import close as shelve_close
 import argparse
 import os
 import sys
@@ -46,7 +47,7 @@ def add(args):
     rec['type'] = args.type
     rec['key'] = args.key
 
-    db = shelve.open(args.file)
+    db = shelve_open(args.file)
     
     udt_key = 'UDT_%s' % args.type
     if udt_key in db:
@@ -77,7 +78,7 @@ def add_type(args):
       a which fields are required.  It also enables more convenient searches for information based on type.
       And queries on fields.
     """
-    db = shelve.open(args.file)
+    db = shelve_open(args.file)
     user_type_name = 'UDT_' + args.type_name
     if user_type_name in db:
        print("User type %s already exists." % user_type_name)
@@ -102,7 +103,7 @@ def list_records(args):
     """
        List the records in a database.
     """
-    db = shelve.open(args.file)
+    db = shelve_open(args.file)
     count = 0 
     if args.long:
        header = "%-15s  %-60s" % ('Object Key','Data')
@@ -137,7 +138,7 @@ def show(args):
     """
       Show contents of a record.
     """
-    db = shelve.open(args.file)
+    db = shelve_open(args.file)
     if args.key in db:
        print("Displaying contents of record: %s" % args.key)
        rec = db[args.key]
@@ -150,7 +151,7 @@ def update(args):
     """
       Update a records attributes.
     """
-    db = shelve.open(args.file)
+    db = shelve_open(args.file)
     if args.key in db:
        updates = parse_keywords(args.keywords)
        rec_to_update = db[args.key]
@@ -169,7 +170,7 @@ def delete(args):
     """
       Delete a record from the database.
     """
-    db = shelve.open(args.file)
+    db = shelve_open(args.file)
     if args.key in db:
        del db[args.key]
        db.close() #commit or delete will not happen
@@ -219,11 +220,15 @@ parser_show = subparsers.add_parser('show',help='Show Command Help')
 parser_show.add_argument('key',help='Key identifying name of record.')
 parser_show.set_defaults(func=show)
 
+def cli():
+    """
+    Execute cli functions
+    """
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-if len(sys.argv) < 2:
-     parser.print_help()
-     sys.exit(0)
+    if len(sys.argv) < 2:
+         parser.print_help()
+         sys.exit(0)
 
-args.func(args)
+    args.func(args)
