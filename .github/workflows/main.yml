@@ -24,4 +24,4 @@ jobs:
 
     # Runs a single command using the runners shell
     - name: Run unit tests
-      run: PYTHONPATH=./src:./tests python -m unittest -v test_sqliteshelve
+      run: PYTHONPATH=./src pytest --cov=src tests/

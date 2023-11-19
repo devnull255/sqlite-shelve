@@ -69,7 +69,9 @@ def add(args):
  
     db[args.key] = rec
     db.close() #commits changes    
-    print('Entry %s added.' % args.key)
+    msg = f"Entry {args.key} added."
+    print(msg)
+    return msg
 
 def add_type(args):
     """
@@ -220,15 +222,15 @@ parser_show = subparsers.add_parser('show',help='Show Command Help')
 parser_show.add_argument('key',help='Key identifying name of record.')
 parser_show.set_defaults(func=show)
 
-def cli():
+def cli(argv=sys.argv):
     """
     Execute cli functions
     """
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    if len(sys.argv) < 2:
+    if len(argv) < 2:
          parser.print_help()
-         sys.exit(0)
+         return
 
     args.func(args)

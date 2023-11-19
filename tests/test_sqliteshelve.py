@@ -3,39 +3,43 @@ import os
 import pickle
 import sqlite3
 import sys
-sys.path.append('../src')
+
+sys.path.append("../src")
 
 import sqliteshelve as shelve
+import sqliteshelve.cli as cli
+
 
 class SQLiteShelfTestCase(unittest.TestCase):
-
     def setUp(self):
-        self.db = shelve.open('test_shelf')
-        
+        self.db = shelve.open("test_shelf")
 
     def test_new_shelf(self):
-        """ Ensures Shelf instance is created as expected """
+        """Ensures Shelf instance is created as expected"""
         self.assertIsInstance(self.db, shelve.Shelf)
-        self.assertEqual(len(self.db), 0 )
+        self.assertEqual(len(self.db), 0)
 
     def test__setitem__(self):
         """Ensure's a Shelf item can be assigned a key value"""
         key = "MN"
         self.db[key] = "Minnesota"
         cursor = self.db.db.cursor()
-        cursor.execute("select value_str from shelf where key_str = :key", {'key': key})
+        cursor.execute("select value_str from shelf where key_str = :key", {"key": key})
         result = cursor.fetchone()
         cursor.close()
         result_str = pickle.loads(result[0])
         self.assertEqual(result_str, "Minnesota")
-            
+
     def test__getitem__(self):
         """Ensures a Shelf item can be retrieved by key"""
         key = "MI"
         value = "Michigan"
         pdata = pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
         curr = self.db.db.cursor()
-        curr.execute("insert or replace into shelf (key_str, value_str) values (:key, :value)", {'key': key, 'value': sqlite3.Binary(pdata)})
+        curr.execute(
+            "insert or replace into shelf (key_str, value_str) values (:key, :value)",
+            {"key": key, "value": sqlite3.Binary(pdata)},
+        )
         curr.close()
         state = self.db[key]
         self.assertEqual(state, "Michigan")
@@ -49,7 +53,7 @@ class SQLiteShelfTestCase(unittest.TestCase):
         expected_keys = {"AL", "CA", "MI", "MN"}
         self.assertEqual(set(self.db.keys()), expected_keys)
         self.assertEqual(len(self.db.keys()), 4)
-        
+
     def test___contains__(self):
         """Ensures in operator works on Shelf object"""
         self.db["AL"] = "Alabama"
@@ -71,7 +75,7 @@ class SQLiteShelfTestCase(unittest.TestCase):
         del self.db["AL"]
         self.assertEqual(len(self.db), 3)
         self.assertNotIn("AL", self.db)
-    
+
     def test_contextmanager(self):
         """
         Ensures contextmanager works for sqliteshelve.Shelf
@@ -87,7 +91,28 @@ class SQLiteShelfTestCase(unittest.TestCase):
             self.assertIn("OR", keys)
             self.assertIn("CA", keys)
 
-    def tearDown(self):
-        if os.path.exists('test_shelf'):
-            os.remove('test_shelf')         
+    def test_cli_add(self):
+        """
+        Ensures list cmd works as expected
+        """
+        if os.path.exists("cli_test_shelf"):
+            os.remove("cli_test_shelf")
 
+        cli.cli(["--file=cli_test_shelf", "add", "rec1", "name=Michael", "age=39"])
+        cli.cli(["--file=cli_test_shelf", "add", "rec2", "name=Michael", "age=39"])
+        cli.cli(["--file=cli_test_shelf", "add", "rec3", "name=Michael", "age=39"])
+
+    def test_cli_list(self):
+        """
+        Ensure lists list record as expected.
+        """
+        if not os.path.exists("cli_test_shelf"):
+            cli.cli(["--file=cli_test_shelf", "add", "rec1", "name=Michael", "age=39"])
+            cli.cli(["--file=cli_test_shelf", "add", "rec2", "name=Michael", "age=39"])
+            cli.cli(["--file=cli_test_shelf", "add", "rec3", "name=Michael", "age=39"])
+
+        cli.cli(["--file=cli_test_shelf", "list"])
+
+    def tearDown(self):
+        if os.path.exists("test_shelf"):
+            os.remove("test_shelf")
